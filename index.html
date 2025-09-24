@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsive Rive Animation</title>
+<style>
+body, html {
+
+    margin: 0;
+    font-size: 0px;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-y: auto;   /* Allow vertical scrolling */
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Top Navigation */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100px;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 16px; /* restore text size inside navbar */
+}
+.nav-inner {
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #111827;
+}
+.brand svg { width: 28px; height: 28px; }
+.brand .name { font-weight: 700; letter-spacing: 0.2px; }
+
+.nav-center {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    color: #374151;
+}
+.nav-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.nav-item .chev { font-size: 12px; color: #6b7280; }
+
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.icon-btn { width: 28px; height: 28px; display: grid; place-items: center; color: #4b5563; cursor: pointer; }
+.cta {
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+canvas {
+    width: 100%; /* Set canvas width manually */
+    margin: 20px auto; /* Center horizontally + 20px vertical gap */
+    display: block; /* Ensure proper centering */
+}
+
+#riveCanvas5 { background: #000000; }
+
+/* Footer contact form */
+.footer-contact {
+    width: 100%;
+    background: #f5f6f8;
+    padding: 40px 16px;
+    box-sizing: border-box;
+}
+.footer-contact .wrap {
+    max-width: none;
+    width: 100%;
+    margin: 0 auto;
+    background: transparent;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 20px;
+}
+.footer-contact .left {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.footer-contact .left canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.footer-contact .left .caption {
+    position: relative;
+    margin-top: -56px;
+    padding: 16px 20px;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    font-size: 16px;
+}
+.footer-contact .left .caption .title { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+
+.footer-contact .right {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+}
+.footer-contact form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.footer-contact .full { grid-column: 1 / -1; }
+.footer-contact label { display: block; font-size: 14px; color: #374151; margin-bottom: 6px; }
+.footer-contact input, .footer-contact select, .footer-contact button, .footer-contact textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    background: #ffffff;
+}
+.footer-contact button {
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 14px 16px;
+    min-height: 48px;
+}
+.footer-contact .legal { font-size: 12px; color: #6b7280; margin-top: 10px; }
+.footer-contact .legal a { color: #6b21a8; text-decoration: underline; }
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .footer-contact { padding: 28px 12px; }
+    .footer-contact .wrap { gap: 16px; padding: 16px; }
+}
+
+/* Stack vertically below 1425px */
+@media (max-width: 1425px) {
+    .footer-contact .wrap { grid-template-columns: 1fr; }
+}
+
+/* Mobile */
+@media (max-width: 960px) {
+    .footer-contact .wrap { grid-template-columns: 1fr; }
+    .footer-contact .left canvas { height: 220px; object-position: center; }
+    .footer-contact form { grid-template-columns: 1fr; }
+    .footer-contact .left .caption { margin-top: 0; color: #111827; text-shadow: none; padding: 10px 0; }
+    .footer-contact input, .footer-contact select, .footer-contact textarea { font-size: 16px; }
+    .footer-contact button { width: 100%; }
+}
+</style>
+<script src="https://unpkg.com/@rive-app/webgl2"></script>
+</head>
+<body>
+<header class="navbar">
+    <div class="nav-inner">
+        <div class="nav-left">
+            <div class="brand">
+                <img src="logo kyta.png" alt="Kyta Platform Logo" style="display:inline-block; vertical-align:middle; height:64px; max-height:100px;">
+                
+            </div>
+        </div>
+        <nav class="nav-center">
+            <div class="nav-item">Suites <span class="chev">▾</span></div>
+            <div class="nav-item">Customers</div>
+            <div class="nav-item">Pricing</div>
+            <div class="nav-item">Resources <span class="chev">▾</span></div>
+            <div class="nav-item">About Us</div>
+        </nav>
+        <div class="nav-right">
+            <div class="icon-btn" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div class="icon-btn" aria-label="Language">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M2 12h20"></path>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </div>
+            <div class="icon-btn" aria-label="Account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <button class="cta">Contact Us</button>
+        </div>
+    </div>
+    </header>
+<canvas id="riveCanvas"></canvas>
+<canvas id="riveCanvas1b"></canvas>
+<canvas id="riveCanvas2"></canvas>
+<canvas id="riveCanvas3"></canvas>
+<canvas id="riveCanvas4"></canvas>
+<canvas id="riveCanvas5"></canvas>
+<div id="widthDisplay"></div>
+<script>
+    let riveInstances = [];
+    let widthInputsById = {};
+
+    function updateCanvasHeights() {
+        const browserWidth = window.innerWidth;
+        const widthDisplay = document.getElementById('widthDisplay');
+        widthDisplay.innerText = browserWidth + ' px';
+
+        const canvasIds = ['riveCanvas', 'riveCanvas1b', 'riveCanvas2', 'riveCanvas3', 'riveCanvas4', 'riveCanvas5'];
+        for (const id of canvasIds) {
+            const canvas = document.getElementById(id);
+            if (!canvas) continue;
+            if (browserWidth >= 1425) {
+                if (id === 'riveCanvas') {
+                    canvas.style.height = '700px'; 
+                } else if (id === 'riveCanvas1b') {
+                    canvas.style.height = '600px';   
+                } else {
+                    canvas.style.height = '800px';
+                }
+            } else {
+                if (id === 'riveCanvas1b') {
+                    canvas.style.height = '600px';
+                } else if (id === 'riveCanvas5') {
+                    canvas.style.height = '500px';
+                } else if (id === 'riveCanvas') {
+                    canvas.style.height = '800px';
+                } else if (id === 'contactCanvas') {
+                    canvas.style.height = '300px';
+                } else {
+                    canvas.style.height = '910px';
+                }
+            }
+        }
+
+        for (const instance of riveInstances) {
+            if (instance) instance.resizeDrawingSurfaceToCanvas();
+        }
+
+        for (const key in widthInputsById) {
+            const input = widthInputsById[key];
+            if (input) input.value = browserWidth;
+        }
+    }
+
+    function initRiveForCanvas(config) {
+        const { canvasId, artboard, stateMachine, fit, alignment } = config;
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const instance = new rive.Rive({
+            src: 'kyta_graphic.riv',
+            canvas,
+            autoplay: true,
+            artboard,
+            stateMachines: stateMachine || undefined,
+            layout: new rive.Layout({
+                fit: typeof fit !== 'undefined' ? fit : rive.Fit.Contain,
+                alignment: typeof alignment !== 'undefined' ? alignment : rive.Alignment.TopCenter
+            }),
+            onLoad: () => {
+                if (stateMachine) {
+                    try {
+                        const inputs = instance.stateMachineInputs(stateMachine);
+                        const maybeWidth = inputs && inputs.find(i => i.name === 'width num');
+                        if (maybeWidth) {
+                            widthInputsById[canvasId] = maybeWidth;
+                        }
+                    } catch (e) {
+                        // ignore missing state machine
+                    }
+                }
+                if (canvasId === 'contactCanvas') {
+                    console.log('[Rive] contactCanvas loaded', { artboard });
+                }
+                instance.resizeDrawingSurfaceToCanvas();
+                updateCanvasHeights();
+            }
+        });
+
+        riveInstances.push(instance);
+    }
+
+    const riveConfigs = [
+        { canvasId: 'riveCanvas', artboard: 'cover2', stateMachine: 'State Machine 1' },
+        { canvasId: 'riveCanvas1b', artboard: 'Text', stateMachine: 'State Machine 1' },
+        { canvasId: 'riveCanvas2', artboard: 'Kyta ALM', stateMachine: 'State Machine 1' },
+        { canvasId: 'riveCanvas3', artboard: 'Kyta Sign', stateMachine: 'State Machine 1' },
+        { canvasId: 'riveCanvas4', artboard: 'Kyta Gate', stateMachine: 'State Machine 1' },
+        { canvasId: 'riveCanvas5', artboard: 'puzzle2', stateMachine: 'State Machine 1' },
+    ];
+
+    for (const cfg of riveConfigs) {
+        initRiveForCanvas(cfg);
+    }
+
+    window.onresize = updateCanvasHeights;
+</script>
+
+<!-- Footer Contact Form -->
+<section class="footer-contact" aria-labelledby="contact-title">
+    <div class="wrap">
+        <div class="left">
+            <canvas id="contactCanvas"></canvas>
+            <div class="caption">
+                <div class="title" id="contact-title">Contact Us</div>
+                <div>Please leave your information so we can advise better!</div>
+            </div>
+        </div>
+        <div class="right">
+            <form>
+                <div>
+                    <label for="firstName">First name *</label>
+                    <input id="firstName" name="firstName" placeholder="Enter first name" required>
+                </div>
+                <div>
+                    <label for="lastName">Last name *</label>
+                    <input id="lastName" name="lastName" placeholder="Enter last name" required>
+                </div>
+                <div>
+                    <label for="company">Company *</label>
+                    <input id="company" name="company" placeholder="Enter your name company" required>
+                </div>
+                <div class="full">
+                    <label for="email">Email *</label>
+                    <input id="email" type="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div>
+                    <label for="phone">Phone number *</label>
+                    <input id="phone" name="phone" placeholder="Enter your phone number" required>
+                </div>
+                <div>
+                    <label for="product">Product of interest *</label>
+                    <select id="product" name="product" required>
+                        <option value="">Choose a product</option>
+                        <option>Kyta ALM</option>
+                        <option>Kyta Sign</option>
+                        <option>Kyta Gate</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <button type="submit">Send Now</button>
+                </div>
+                <div class="full legal">
+                    By filling out this form, you agree to Kyta Platform’s <a href="#">privacy policy</a>, and consent to receiving marketing communications.
+                </div>
+            </form>
+        </div>
+    </div>
+ </section>
+<script>
+    // Initialize contact canvas Rive separately from updateCanvasHeights
+    (function initContactCanvasRive() {
+        const canvas = document.getElementById('contactCanvas');
+        if (!canvas || typeof rive === 'undefined') return;
+
+        function updateContactCanvasHeight() {
+            const browserWidth = window.innerWidth;
+            canvas.style.height = browserWidth >= 1425 ? '800px' : '300px';
+        }
+
+        // Set initial height before creating the Rive instance
+        updateContactCanvasHeight();
+
+        const contactInstance = new rive.Rive({
+            src: 'contactkyta.riv',
+            canvas,
+            autoplay: true,
+            artboard: 'contact',
+            stateMachines: 'State Machine 1',
+            layout: new rive.Layout({
+                fit: rive.Fit.Contain,
+                alignment: rive.Alignment.TopCenter
+            }),
+            onLoad: () => {
+                updateContactCanvasHeight();
+                contactInstance.resizeDrawingSurfaceToCanvas();
+            }
+        });
+
+        // Keep the drawing surface sized to the canvas without using updateCanvasHeights
+        window.addEventListener('resize', () => {
+            updateContactCanvasHeight();
+            contactInstance.resizeDrawingSurfaceToCanvas();
+        });
+    })();
+</script>
+</body>
+</html>
+
